@@ -59,6 +59,8 @@ class UI:
         username = self.username_entry.get()
         password = self.password_entry.get()
         import_mode = self.mode_combo.current()
+        username = "320922197806044437"
+        password = "bh88888888"
         while True:
             try:
                 import_check_data(username, password, self.select_file_path, import_mode)
