@@ -50,7 +50,7 @@ class UI:
 
     def __handle_file_button_click(self):
         self.select_file_path = filedialog.askopenfilename()
-        self.log(f"所选文件{self.select_file_path}")
+        self.log(f"所选文件：{self.select_file_path}")
 
     def __handle_import_button_click(self):
         if self.select_file_path is None or self.select_file_path == "":
@@ -74,7 +74,7 @@ class UI:
     def __init_log_window(self):
         self.log_window = tkinter.Toplevel(self.root)
         self.log_window.title("日志")
-        self.log_window.geometry("400x300")
+        self.log_window.geometry("500x300")
         self.__init_log_text()
 
     def __init_log_text(self):

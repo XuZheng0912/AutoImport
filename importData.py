@@ -5,6 +5,7 @@ from openpyxl.cell import Cell
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 
 import config
 from Person import Person
@@ -21,12 +22,13 @@ def import_check_data(username: str, password: str, file_path: str, mode: int):
 
 
 def import_new(username: str, password: str, file_path: str):
-    persons: List[Person] = read_excel(file_path)
-    for person in persons:
-        config.current_row_index += 1
     driver: webdriver = webdriver.Chrome()
     driver.maximize_window()
     driver.get(target_url)
+    driver.find_element(by=By.ID, value="pwd").send_keys(password)
+    # persons: List[Person] = read_excel(file_path)
+    # for person in persons:
+    #     config.current_row_index += 1
 
 
 def import_cover(username: str, password: str, file_path: str):
