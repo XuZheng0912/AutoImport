@@ -2,18 +2,25 @@ import tkinter
 from datetime import datetime
 from tkinter import Label
 from tkinter import ttk
+from tkinter import filedialog
+from tkinter import messagebox
 from importData import import_check_data
+from config import current_row_index
 
 
 class UI:
     def __init__(self):
+        self.__init_properties()
         self.__init_root_window()
         self.__init_log_window()
+
+    def __init_properties(self):
+        self.select_file_path = None
 
     def __init_root_window(self):
         self.root = tkinter.Tk()
         self.root.title("自动导入")
-        self.root.geometry("240x210")
+        self.root.geometry("240x230")
         # 创建用户名标签和输入框
         self.username_label = tkinter.Label(self.root, text="用户名", width=5)
         self.username_label.grid(row=0, column=0, padx=10, pady=10)
@@ -35,15 +42,30 @@ class UI:
         self.mode_combo.current(0)  # 设置默认选择第一个选项
         self.mode_combo.grid(row=2, column=1, padx=10, pady=10)
 
-        # 创建登录按钮
+        self.file_button = tkinter.Button(self.root, text="选择文件", command=self.__handle_file_button_click)
+        self.file_button.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+
         self.import_button = tkinter.Button(self.root, text="导入", command=self.__handle_import_button_click)
-        self.import_button.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+        self.import_button.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+
+    def __handle_file_button_click(self):
+        self.select_file_path = filedialog.askopenfilename()
+        self.log(f"所选文件{self.select_file_path}")
 
     def __handle_import_button_click(self):
+        if self.select_file_path is None or self.select_file_path == "":
+            self.show_error("请先选择excel文件")
+            return
         username = self.username_entry.get()
         password = self.password_entry.get()
         import_mode = self.mode_combo.current()
-        import_check_data(username, password, import_mode)
+        while True:
+            try:
+                import_check_data(username, password, self.select_file_path, import_mode)
+                break
+            except Exception as e:
+                self.log("导入过程异常，正在重新导入")
+                self.log(f"从{current_row_index + 1}行继续导入")
 
     def __init_username_label(self):
         self.username_label = Label(self.root, text="用户名")
@@ -72,3 +94,11 @@ class UI:
     def log_time_stamp() -> str:
         now = datetime.now()
         return "[" + now.strftime("%Y-%m-%d %H:%M:%S") + "]"
+
+    @staticmethod
+    def show_error(message: str):
+        messagebox.showerror("错误", message)
+
+    @staticmethod
+    def show_info(message: str):
+        messagebox.showinfo(title="信息", message=message)
