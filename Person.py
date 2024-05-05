@@ -51,6 +51,15 @@ class Person:
         self.medicine_use_time_4: str = row[45].value
         self.medicine_compliance_4: str = row[46].value
 
+    def is_diabetic(self) -> bool:
+        return self.diabetes.strip() == "糖尿病"
+
+    def is_hypertensive(self) -> bool:
+        return self.hypertension.strip() == "高血压"
+
+    def is_elder(self) -> bool:
+        return self.elder.strip() == "老年人"
+
     def __teeth(self, excel_value: str) -> str:
         if excel_value is None:
             return self.__random_teeth()

@@ -44,7 +44,76 @@ def import_new(username: str, password: str, file_path: str):
         enter_person_id(driver, person.id)
         click_search_button(driver)
         double_click_result_list(driver)
+        click_create_button(driver)
+        import_person_data(driver, person)
+
         config.current_row_index += 1
+
+
+def import_person_data(driver: WebDriver, person: Person):
+    import_check_way(driver, person)
+    import_symptom(driver, person)
+    import_common(driver, person)
+
+
+def import_common(driver: WebDriver, person: Person):
+    enter_temperature(driver, person)
+
+
+def enter_temperature(driver: WebDriver, person: Person):
+    send_keys_by_xpath(driver, path="//input[@name='temperature']", keys=person.temperature)
+
+
+def send_keys_by_xpath(driver: WebDriver, path: str, keys: str):
+    send_keys_if_empty(element=find_element_by_xpath(driver, path), keys=keys)
+
+
+def send_keys_if_empty(element: WebElement, keys: str):
+    if not element.get_attribute("value"):
+        element.send_keys(keys)
+
+
+def import_symptom(driver: WebDriver, person: Person):
+    select_no_symptom(driver, person)
+
+
+def import_check_way(driver: WebDriver, person: Person):
+    select_elder(driver, person)
+    select_hypertensive(driver, person)
+    select_diabetic(driver, person)
+
+
+def select_no_symptom(driver: WebDriver, person: Person):
+    click_select_by_xpath(driver=driver, path="//input[@name='symptom'][@value='01']")
+
+
+def select_diabetic(driver: WebDriver, person: Person):
+    if person.is_diabetic():
+        click_select_by_xpath(driver=driver, path="//input[@name='checkWay'][@value=4]")
+
+
+def select_hypertensive(driver: WebDriver, person: Person):
+    if person.is_hypertensive():
+        click_select_by_xpath(driver=driver, path="//input[@name='checkWay'][@value=3]")
+
+
+def select_elder(driver: WebDriver, person: Person):
+    if person.is_elder():
+        click_select_by_xpath(driver=driver, path="//input[@name='checkWay'][@value=2]")
+
+
+def click_select_by_xpath(driver: WebDriver, path: str):
+    click_select_if_no_selected(find_element_by_xpath(driver, path))
+
+
+def click_select_if_no_selected(element: WebElement):
+    if not element.is_selected():
+        element.click()
+
+
+def click_create_button(driver: WebDriver):
+    time.sleep(0.5)
+    find_element_by_xpath(driver, "//button[text()='新建(F2)']").click()
 
 
 def double_click_result_list(driver: WebDriver):
