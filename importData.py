@@ -46,7 +46,6 @@ def import_new(username: str, password: str, file_path: str):
         double_click_result_list(driver)
         click_create_button(driver)
         import_person_data(driver, person)
-
         config.current_row_index += 1
 
 
@@ -54,10 +53,123 @@ def import_person_data(driver: WebDriver, person: Person):
     import_check_way(driver, person)
     import_symptom(driver, person)
     import_common(driver, person)
+    import_life_style(driver, person)
+
+
+def import_life_style(driver: WebDriver, person: Person):
+    click_select_if_all_no_select(driver, "physicalExerciseFrequency", "4")
+    click_select_if_all_no_select(driver, "dietaryHabit", "1")
+    click_select_if_all_no_select(driver, "wehtherSmoke", "1")
+    click_select_if_all_no_select(driver, "drinkingFrequencydrinkingFrequency", "1")
+    click_select_if_all_no_select(driver, "occupational", "1")
+    click_select_if_all_no_select(driver, "lip", "1")
+    import_denture(driver, person)
+    click_select_if_all_no_select(driver, "lip", "1")
+    click_select_if_all_no_select(driver, "pharyngeal", "1")
+
+
+def import_eye_sight(driver: WebDriver, person: Person):
+    send_keys_by_xpath(driver, path="//input[@name='leftEye']", keys=person.left_eye)
+    send_keys_by_xpath(driver, path="//input[@name='rightEye']", keys=person.right_eye)
+
+
+def import_denture(driver: WebDriver, person: Person):
+    if not person.is_elder():
+        click_select_if_all_no_select(driver, "denture", "1")
+        return
+    click_select_by_xpath(driver, path="//input[@name='denture'][@value=2]")
+    send_keys_by_xpath(driver, path="//input[@name='leftUp']", keys=person.teeth_left_up)
+    send_keys_by_xpath(driver, path="//input[@name='leftDown']", keys=person.teeth_left_down)
+    send_keys_by_xpath(driver, path="//input[@name='rightUp']", keys=person.teeth_right_up)
+    send_keys_by_xpath(driver, path="//input[@name='rightDown']", keys=person.teeth_right_down)
+
+
+def click_select_if_all_no_select(driver: WebDriver, name: str, value: str):
+    elements_path = f"//input[@name={name}]"
+    elements: List[WebElement] = find_elements_by_path(driver, elements_path)
+    if not is_all_no_select(elements):
+        return
+    target_path = f"//input[@name={name}][@value={value}]"
+    click_select_by_xpath(driver, target_path)
+
+
+def is_all_no_select(elements: List[WebElement]):
+    for element in elements:
+        if element.is_selected():
+            return False
+    return True
+
+
+def find_elements_by_path(driver: WebDriver, path: str) -> List[WebElement]:
+    return driver.find_elements(By.XPATH, path)
 
 
 def import_common(driver: WebDriver, person: Person):
     enter_temperature(driver, person)
+    enter_pulse_rate(driver, person)
+    enter_right_systolic_pressure(driver, person)
+    enter_blood_pressure(driver, person)
+    enter_height(driver, person)
+    enter_weight(driver, person)
+    enter_waistline(driver, person)
+    click_bmi_input(driver)
+    click_elder_rel_select(driver, person)
+
+
+def click_elder_rel_select(driver: WebDriver, person: Person):
+    if not person.is_elder():
+        return
+    click_select_by_xpath(driver, path="//input[@name='healthStatus'][@value=1]")
+    click_select_by_xpath(driver, path="//input[@name='selfCare'][@value=1]")
+    click_select_by_xpath(driver, path="//input[@name='cognitive'][@value=1]")
+    click_select_by_xpath(driver, path="//input[@name='emotion'][@value=1]")
+
+
+def click_bmi_input(driver: WebDriver):
+    find_element_by_xpath(driver, path="//input[@name='bmi']").click()
+
+
+def enter_waistline(driver: WebDriver, person: Person):
+    send_keys_by_xpath(driver, path="//input[@name='waistline']", keys=person.waistline)
+
+
+def enter_weight(driver: WebDriver, person: Person):
+    send_keys_by_xpath(driver, path="//input[@name='weight']", keys=person.weight)
+
+
+def enter_height(driver: WebDriver, person: Person):
+    send_keys_by_xpath(driver, path="//input[@name='height']", keys=person.height)
+
+
+def enter_blood_pressure(driver: WebDriver, person: Person):
+    enter_right_systolic_pressure(driver, person)
+    enter_right_diastolic_pressure(driver, person)
+    enter_left_systolic_pressure(driver, person)
+    enter_left_diastolic_pressure(driver, person)
+
+
+def enter_left_diastolic_pressure(driver: WebDriver, person: Person):
+    send_keys_by_xpath(driver, path="//input[@name='diastolic_L']", keys=person.left_diastolic_pressure)
+
+
+def enter_left_systolic_pressure(driver: WebDriver, person: Person):
+    send_keys_by_xpath(driver, path="//input[@name='constriction_L']", keys=person.left_systolic_pressure)
+
+
+def enter_right_diastolic_pressure(driver: WebDriver, person: Person):
+    send_keys_by_xpath(driver, path="//input[@name='diastolic']", keys=person.right_diastolic_pressure)
+
+
+def enter_right_systolic_pressure(driver: WebDriver, person: Person):
+    send_keys_by_xpath(driver, path="//input[@name='constriction']", keys=person.right_systolic_pressure)
+
+
+def enter_breath_rate(driver: WebDriver, person: Person):
+    send_keys_by_xpath(driver, path="//input[@name='breathe']", keys=person.breath_rate)
+
+
+def enter_pulse_rate(driver: WebDriver, person: Person):
+    send_keys_by_xpath(driver, path="//input[@name='pulse']", keys=person.pulse_rate)
 
 
 def enter_temperature(driver: WebDriver, person: Person):
@@ -65,12 +177,14 @@ def enter_temperature(driver: WebDriver, person: Person):
 
 
 def send_keys_by_xpath(driver: WebDriver, path: str, keys: str):
-    send_keys_if_empty(element=find_element_by_xpath(driver, path), keys=keys)
+    send_keys_if_keys_not_empty(element=find_element_by_xpath(driver, path), keys=keys)
 
 
-def send_keys_if_empty(element: WebElement, keys: str):
-    if not element.get_attribute("value"):
-        element.send_keys(keys)
+def send_keys_if_keys_not_empty(element: WebElement, keys: str):
+    if keys is None or len(keys.strip()) == 0:
+        return
+    element.clear()
+    element.send_keys(keys)
 
 
 def import_symptom(driver: WebDriver, person: Person):
